@@ -5,8 +5,25 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const dbPath = path.resolve(__dirname, '../../database.sqlite');
+import fs from 'fs';
+
+const isVercel = Boolean(process.env.VERCEL);
+let dbPath = path.resolve(__dirname, '../../database.sqlite');
+
+if (isVercel) {
+  const tmpDbPath = '/tmp/database.sqlite';
+  if (!fs.existsSync(tmpDbPath) && fs.existsSync(dbPath)) {
+    try {
+      fs.copyFileSync(dbPath, tmpDbPath);
+    } catch (e) {
+      console.error('Error copying seed sqlite db to /tmp:', e);
+    }
+  }
+  dbPath = tmpDbPath;
+}
+
 const db = new Database(dbPath);
+
 
 // Enable foreign keys
 db.pragma('foreign_keys = ON');

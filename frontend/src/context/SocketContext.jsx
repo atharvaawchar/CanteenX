@@ -9,11 +9,13 @@ export function SocketProvider({ children }) {
   const { user } = useAuth();
 
   useEffect(() => {
-    const newSocket = io('/', {
+    const serverUrl = import.meta.env.VITE_API_URL || '/';
+    const newSocket = io(serverUrl, {
       transports: ['websocket', 'polling']
     });
 
     setSocket(newSocket);
+
 
     if (user && user.id) {
       newSocket.emit('join_user', user.id);
